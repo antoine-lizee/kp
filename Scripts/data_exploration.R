@@ -1,6 +1,6 @@
 library(stringr)
 setwd("~/Desktop/Kaggle compet/Data")
-d <- read.csv('training.csv')
+d <- read.csv('Data/training.csv')
 head(d)
 n <- nrow(d)
 

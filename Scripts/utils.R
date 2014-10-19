@@ -14,7 +14,7 @@ mcrmse <- function(Y,Y.hat){
   return(error)
 }
 
-CV <- function(model, X, Y, error, nFold = 3) {
+CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
   
   cat("### Beginning CV...")
   N <- nrow(X)
@@ -48,6 +48,7 @@ if (test.b <- TRUE) {
   
   print( mcrmse(Y, Y.hat) )
   
-  
+  source("Scripts/init.R")
+  CV(model_zero, X = Xtot, Y =Ytot)
 }
 
