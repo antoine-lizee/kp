@@ -7,7 +7,7 @@ mcrmse <- function(Y,Y.hat){
   # Y and Y.hat have 6 columns (PIDN,Ca,P,pH,SOC,Sand)
   error <- numeric(0)
   for (i in 1:5){
-    error <- c(error, sqrt(mean((Y[i] - Y.hat[i])^2)))
+    error <- c(error, sqrt(mean((Y[,i] - Y.hat[,i])^2)))
   }
   error <- c(error, mean(error))
   names(error) <- c("mseCa","mseP", "msepH", "mseSOC", "mseSand", "mcrmse")
@@ -37,6 +37,13 @@ CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
   
   perf <- do.call(cbind, perf)
   
+}
+
+writeSubmission <- function(Ytrain, Ypred){
+  submission <- data.frame(PIDN = Ytrain$PIDN, Ca = Ypred$Ca, 
+                           P = Ypred$P, pH = Ypred$pH, 
+                           SOC = Ypred$SOC, Sand = Ypred$Sand)
+  write.csv(submission, paste0(Sys.Date(),"-submission.csv"),row.names = F)
 }
 
 

@@ -19,3 +19,9 @@ model <- function(Xtrain, Ytrain, Xtest) {
   
 }
 
+model_zero <- function(Xtrain, Ytrain, Xtest) {
+  tmp <- matrix(0, nrow = dim(Xtest)[1], ncol = 5)
+  Ypred <- as.data.frame(tmp)
+  names(Ypred) <- c("Ca", "P", "pH", "SOC", "Sand")
+  return(Ypred)
+}
