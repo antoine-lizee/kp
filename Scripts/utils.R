@@ -32,18 +32,19 @@ CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
     
     perf_i <- error(Ytest_i, Ypred_i)
     print(perf_i)
-    perf[[i]] <- perf_i
+    perf[[iFold]] <- perf_i
   }
   
   perf <- do.call(cbind, perf)
   
 }
 
-writeSubmission <- function(Ytrain, Ypred){
-  submission <- data.frame(PIDN = Ytrain$PIDN, Ca = Ypred$Ca, 
+writeSubmission <- function(ids, Ypred, modelName){
+  submission <- data.frame(PIDN = ids, Ca = Ypred$Ca, 
                            P = Ypred$P, pH = Ypred$pH, 
                            SOC = Ypred$SOC, Sand = Ypred$Sand)
-  write.csv(submission, paste0(Sys.Date(),"-submission.csv"),row.names = F)
+  timeString <- gsub(Sys.time(), pattern = "\\s|:|PDT", replacement = "")
+  write.csv(submission, paste0("Output/", timeString,"-", modelName ,"-submission.csv"),row.names = F)
 }
 
 
@@ -52,10 +53,12 @@ writeSubmission <- function(Ytrain, Ypred){
 if (test.b <- TRUE) {
   Y <- read.csv("Output/sample_submission.csv")
   Y.hat <- read.csv("Output/submission.csv")
-  
-  print( mcrmse(Y, Y.hat) )
+  print( mcrmse(Y[,-1], Y.hat[,-1]) )
   
   source("Scripts/init.R")
+  source("Scripts/models.R")
   CV(model_zero, X = Xtot, Y =Ytot)
+  
+  writeSubmission(testdata$PIDN, model_zero(Xtot, Ytot, testdata), "M0")
 }
 
