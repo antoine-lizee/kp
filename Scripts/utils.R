@@ -40,9 +40,9 @@ CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
 }
 
 writeSubmission <- function(ids, Ypred, modelName){
-  submission <- data.frame(PIDN = ids, Ca = Ypred$Ca, 
-                           P = Ypred$P, pH = Ypred$pH, 
-                           SOC = Ypred$SOC, Sand = Ypred$Sand)
+  submission <- data.frame(PIDN = ids, Ca = Ypred[,1], 
+                           P = Ypred[,2], pH = Ypred[,3], 
+                           SOC = Ypred[,4], Sand = Ypred[,5])
   timeString <- gsub(Sys.time(), pattern = "\\s|:|PDT", replacement = "")
   write.csv(submission, paste0("Output/", timeString,"-", modelName ,"-submission.csv"),row.names = F)
 }
