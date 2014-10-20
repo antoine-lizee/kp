@@ -3,7 +3,7 @@ subModel <- function(Xpp, Y) {
   #lm(Y~.,data.frame(Xpp, Y))
   #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
   #svm(Y~.,data.frame(Xpp, Y))
-  randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 10)
+  #randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 6)
 }
 
 
@@ -14,6 +14,9 @@ getPreproc <- function(Xtrain, Ytrain, Xtest) {
   center.b <- TRUE
   
   wn.col <- grep(colnames(Xtrain), pattern = "m.*")
+  i.remove <- which(wn.col == "m2379.76")
+  j.remove <- which(wn.col == "m2352.76")
+  wn.col <- wn.col[-i.remove:j.remove]
 #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
   wn.train <- Xtrain[,wn.col]
   wn.pca <- prcomp(wn.train, center = center.b)
