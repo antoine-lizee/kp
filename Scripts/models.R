@@ -10,12 +10,12 @@
 
 getPreproc <- function(Xtrain, Ytrain, Xtest) {
   
-  center.b <- TRUE
+  center.b <- FALSE
   
   wn.col <- grep(colnames(Xtrain), pattern = "m.*")
-  i.remove <- which(wn.col == "m2379.76")
-  j.remove <- which(wn.col == "m2352.76")
-  wn.col <- wn.col[-i.remove:j.remove]
+  #i.remove <- which(colnames(Xtrain) == "m2379.76")
+  #j.remove <- which(colnames(Xtrain) == "m2352.76")
+  #wn.col <- wn.col[-(i.remove:j.remove)]
 #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
   wn.train <- Xtrain[,wn.col]
   wn.pca <- prcomp(wn.train, center = center.b)
