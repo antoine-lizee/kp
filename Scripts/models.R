@@ -4,13 +4,13 @@ model <- function(Xtrain, Ytrain, Xtest) {
   center.b <- TRUE
   
   wn.col <- grep(colnames(Xtrain), pattern = "m.*")
-  wn.train <- Xtrain[,wn.col]
+  wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
   wn.pca <- prcomp(wn.train, center = center.b)
   
   pca.rot <- wn.pca$rotation
   pca.vecs <- wn.pca$x
   
-  matplot(pca.rot[,1:4], type = "l")
+  #   matplot(pca.rot[,1:4], type = "l")
   
   preproc <- function(X) {
     if (center.b) {
@@ -20,9 +20,25 @@ model <- function(Xtrain, Ytrain, Xtest) {
     }
   }
   
-  mod <- glm.fit(preproc(Xtrain)[,1:10], Ytrain)
+  train <- function(Xt, Yt) {
+    mod <- list()
+    Xpp <- preproc(Xt)[,1:10]
+    for (i in 1:ncol(Yt)) {
+      mod[[i]] <- lm(Y~.,data.frame(Xpp, Y=Yt[,i]))
+    }
+    return(mod)
+  }
   
-  return(predict(mod, preproc(Xtest)[,1:10]))
+  predict.mod <- function(mod, Xh) {
+    Y <- list()
+    for (i in 1:length(mod)) {
+      Y[[i]] <- predict(mod[[i]], data.frame(preproc(Xh)))
+    }
+    return(do.call(cbind,Y))
+  }
+  
+  MOD <- train(Xtrain, Ytrain)
+  return(predict.mod(MOD, Xtest))
   
 }
 
