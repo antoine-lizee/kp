@@ -1,4 +1,5 @@
 
+
 # subModel <- function(Xpp, Y) {
 #   #lm(Y~.,data.frame(Xpp, Y))
 #   #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
@@ -9,6 +10,7 @@
 
 getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
   
+
   if (PCA == FALSE) {
     preproc <- function(X) {
       X
@@ -25,6 +27,8 @@ getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
     center.b <- FALSE
     
     wn.col <- grep(colnames(Xtrain), pattern = "m.*")
+#i.remove <- which(colnames(Xtrain) == "m2379.76")
+#j.remove <- which(colnames(Xtrain) == "m2352.76")
     #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
     wn.train <- Xtrain[,wn.col]
     wn.pca <- prcomp(wn.train, center = center.b)
