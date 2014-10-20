@@ -16,7 +16,7 @@ mcrmse <- function(Y,Y.hat){
 
 CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
   
-  cat("### Beginning CV...")
+  cat("### Beginning CV...\n")
   N <- nrow(X)
   indexes <- sample(nFold, size = N, replace = T)
   

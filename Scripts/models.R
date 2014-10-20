@@ -8,33 +8,47 @@
 # }
 
 
-getPreproc <- function(Xtrain, Ytrain, Xtest) {
+getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
   
-  center.b <- FALSE
-  
-  wn.col <- grep(colnames(Xtrain), pattern = "m.*")
-  #i.remove <- which(colnames(Xtrain) == "m2379.76")
-  #j.remove <- which(colnames(Xtrain) == "m2352.76")
-  #wn.col <- wn.col[-(i.remove:j.remove)]
-#   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
-  wn.train <- Xtrain[,wn.col]
-  wn.pca <- prcomp(wn.train, center = center.b)
-  pca.rot <- wn.pca$rotation
-  pca.vecs <- wn.pca$x
-  
-  otherPredNames <- c("BSAN", "BSAS", "BSAV", "CTI", "ELEV", "EVI", "LSTD", 
-                      "LSTN", "REF1", "REF2", "REF3", "REF7", "RELI", 
-                      "TMAP", "TMFI", "Depth")
-  #   matplot(pca.rot[,1:4], type = "l")
-  
-  preproc <- function(X) {
-    if (center.b) {
-      wn <- (data.matrix(X[,wn.col]) - (rep(1, nrow(X))  %o% wn.pca$center) )%*% pca.rot
-    } else {
-      wn <- data.matrix(X[,wn.col]) %*% pca.rot
+
+  if (PCA == FALSE) {
+    preproc <- function(X) {
+      X
     }
-    otherPred <- X[, otherPredNames]
-    return(data.frame(wn[,1:20],otherPred))
+  } else {
+    
+    if (PCA == TRUE) {
+      nPCA <- 20 
+    } else {
+      stopifnot(is.numeric(PCA))
+      nPCA <- PCA
+    }
+    
+    center.b <- FALSE
+    
+    wn.col <- grep(colnames(Xtrain), pattern = "m.*")
+#i.remove <- which(colnames(Xtrain) == "m2379.76")
+#j.remove <- which(colnames(Xtrain) == "m2352.76")
+    #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
+    wn.train <- Xtrain[,wn.col]
+    wn.pca <- prcomp(wn.train, center = center.b)
+    pca.rot <- wn.pca$rotation
+    pca.vecs <- wn.pca$x
+    
+    otherPredNames <- c("BSAN", "BSAS", "BSAV", "CTI", "ELEV", "EVI", "LSTD", 
+                        "LSTN", "REF1", "REF2", "REF3", "REF7", "RELI", 
+                        "TMAP", "TMFI", "Depth")
+    #   matplot(pca.rot[,1:4], type = "l")
+    
+    preproc <- function(X) {
+      if (center.b) {
+        wn <- (data.matrix(X[,wn.col]) - (rep(1, nrow(X))  %o% wn.pca$center) )%*% pca.rot
+      } else {
+        wn <- data.matrix(X[,wn.col]) %*% pca.rot
+      }
+      otherPred <- X[, otherPredNames]
+      return(data.frame(wn[,1:nPCA],otherPred))
+    }
   }
   
   return(preproc)
@@ -71,35 +85,35 @@ model <- function(Xtrain, Ytrain, Xtest) {
   return(totalPred(Xtest))
 }
 
-getModelRF <- function(...) {
+getModelRF <- function(PCA = TRUE, ...) {
   library(randomForest)
   subModel <- function(Xpp, Y) {
     randomForest(Y~.,data.frame(Xpp, Y), ...)
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
     totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
     return(totalPred(Xtest))
   }
   
 }
 
-getModelSVM <- function(...) {
+getModelSVM <- function(PCA = TRUE, ...) {
   library(e1071)
   subModel <- function(Xpp, Y) {
     svm(Y~.,data.frame(Xpp, Y), ...)
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
     totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
     return(totalPred(Xtest))
   }
   
 }
 
-getModelLinear <- function(step.b = FALSE) {
+getModelLinear <- function(PCA = TRUE, step.b = FALSE) {
   subModel <- function(Xpp, Y) {
     if( step.b ) {
       step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
@@ -109,7 +123,7 @@ getModelLinear <- function(step.b = FALSE) {
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
     totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
     return(totalPred(Xtest))
   }
