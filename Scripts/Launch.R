@@ -29,10 +29,10 @@ PERF <- list()
 # PERF<- c(PERF, list(CV(getModelSVM(kernel = "sigmoid", cost = 1000),Xtot,Ytot, nFold = 10)))
 
 
-PERF<- c(PERF, list(CV(getModelSVM(PCA = 40, cost = 10),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelSVM(PCA = 40, cost = 10000),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelSVM(PCA = 80, cost = 10),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelSVM(PCA = 80, cost = 10000),Xtot,Ytot, nFolds)))
+PERF<- c(PERF, list(CV(getModelSVM(PCA = 40, cost = 10),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelSVM(PCA = 40, cost = 10000),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelSVM(PCA = 80, cost = 10),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelSVM(PCA = 80, cost = 10000),Xtot,Ytot, nFold = nFolds)))
 
 
 # PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 12),Xtot,Ytot, nFold = nFolds)))
