@@ -1,4 +1,14 @@
 
+subModel <- function(Xpp, Y) {
+  #lm(Y~.,data.frame(Xpp, Y))
+  #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
+  #svm(Y~.,data.frame(Xpp, Y))
+  randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 10)
+}
+
+
+
+
 getPreproc <- function(Xtrain, Ytrain, Xtest) {
   
   center.b <- TRUE
@@ -7,18 +17,22 @@ getPreproc <- function(Xtrain, Ytrain, Xtest) {
 #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
   wn.train <- Xtrain[,wn.col]
   wn.pca <- prcomp(wn.train, center = center.b)
-  
   pca.rot <- wn.pca$rotation
   pca.vecs <- wn.pca$x
-  
+
+  otherPredNames <- c("BSAN", "BSAS", "BSAV", "CTI", "ELEV", "EVI", "LSTD", 
+                      "LSTN", "REF1", "REF2", "REF3", "REF7", "RELI", 
+                      "TMAP", "TMFI", "Depth")
   #   matplot(pca.rot[,1:4], type = "l")
   
   preproc <- function(X) {
     if (center.b) {
-      (data.matrix(X[,wn.col]) - (rep(1, nrow(X))  %o% wn.pca$center) )%*% pca.rot
+      wn <- (data.matrix(X[,wn.col]) - (rep(1, nrow(X))  %o% wn.pca$center) )%*% pca.rot
     } else {
-      data.matrix(X[,wn.col]) %*% pca.rot
+      wn <- data.matrix(X[,wn.col]) %*% pca.rot
     }
+    otherPred <- X[, otherPredNames]
+    return(cbind(wn,otherPred))
   }
   
   return(preproc)
@@ -51,17 +65,9 @@ fitModel <- function(subModel, Xt, Yt, preproc) {
 
 
 model <- function(Xtrain, Ytrain, Xtest) {
-  
   preproc <- getPreproc(Xtrain, Ytrain, Xtest)
-  
-  subModel <- function(Xpp, Y) {
-    lm(Y~.,data.frame(Xpp, Y))
-  }
-  
   totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
-  
   return(totalPred(Xtest))
-  
 }
 
 model_zero <- function(Xtrain, Ytrain, Xtest) {
