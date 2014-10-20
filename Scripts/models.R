@@ -1,12 +1,10 @@
 
-subModel <- function(Xpp, Y) {
-  #lm(Y~.,data.frame(Xpp, Y))
-  #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
-  #svm(Y~.,data.frame(Xpp, Y))
-  randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 10)
-}
-
-
+# subModel <- function(Xpp, Y) {
+#   #lm(Y~.,data.frame(Xpp, Y))
+#   #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
+#   #svm(Y~.,data.frame(Xpp, Y))
+#   randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 8)
+# }
 
 
 getPreproc <- function(Xtrain, Ytrain, Xtest) {
@@ -14,12 +12,12 @@ getPreproc <- function(Xtrain, Ytrain, Xtest) {
   center.b <- TRUE
   
   wn.col <- grep(colnames(Xtrain), pattern = "m.*")
-#   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
+  #   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
   wn.train <- Xtrain[,wn.col]
   wn.pca <- prcomp(wn.train, center = center.b)
   pca.rot <- wn.pca$rotation
   pca.vecs <- wn.pca$x
-
+  
   otherPredNames <- c("BSAN", "BSAS", "BSAV", "CTI", "ELEV", "EVI", "LSTD", 
                       "LSTN", "REF1", "REF2", "REF3", "REF7", "RELI", 
                       "TMAP", "TMFI", "Depth")
@@ -32,7 +30,7 @@ getPreproc <- function(Xtrain, Ytrain, Xtest) {
       wn <- data.matrix(X[,wn.col]) %*% pca.rot
     }
     otherPred <- X[, otherPredNames]
-    return(cbind(wn,otherPred))
+    return(data.frame(wn[,1:20],otherPred))
   }
   
   return(preproc)
@@ -41,7 +39,7 @@ getPreproc <- function(Xtrain, Ytrain, Xtest) {
 fitModel <- function(subModel, Xt, Yt, preproc) {
   train <- function(Xt, Yt) {
     mod <- list()
-    Xpp <- preproc(Xt)[,1:10]
+    Xpp <- preproc(Xt)
     for (i in 1:ncol(Yt)) {
       mod[[i]] <- subModel(Xpp,Yt[,i])
     }
@@ -57,17 +55,61 @@ fitModel <- function(subModel, Xt, Yt, preproc) {
   }
   
   MOD <- train(Xt, Yt)
-
+  
   function(Xtest) {
     predict.mod(MOD, Xtest)
   }
 }
 
-
 model <- function(Xtrain, Ytrain, Xtest) {
   preproc <- getPreproc(Xtrain, Ytrain, Xtest)
   totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
   return(totalPred(Xtest))
+}
+
+getModelRF <- function(...) {
+  library(randomForest)
+  subModel <- function(Xpp, Y) {
+    randomForest(Y~.,data.frame(Xpp, Y), ...)
+  }
+  
+  function(Xtrain, Ytrain, Xtest) {
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    return(totalPred(Xtest))
+  }
+  
+}
+
+getModelSVM <- function(...) {
+  library(e1071)
+  subModel <- function(Xpp, Y) {
+    svm(Y~.,data.frame(Xpp, Y), ...)
+  }
+  
+  function(Xtrain, Ytrain, Xtest) {
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    return(totalPred(Xtest))
+  }
+  
+}
+
+getModelLinear <- function(step.b = FALSE) {
+  subModel <- function(Xpp, Y) {
+    if( step.b ) {
+      step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
+    } else {
+      lm(Y~.,data.frame(Xpp, Y))
+    }
+  }
+  
+  function(Xtrain, Ytrain, Xtest) {
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    return(totalPred(Xtest))
+  }
+  
 }
 
 model_zero <- function(Xtrain, Ytrain, Xtest) {

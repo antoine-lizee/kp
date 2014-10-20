@@ -23,7 +23,7 @@ CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
   perf <- list()
   
   for (iFold in 1:nFold) {
-    cat("## Iteration", iFold, "\n")
+#     cat("## Iteration", iFold, "\n")
     Xtrain_i <- X[indexes != iFold,]
     Ytrain_i <- Y[indexes != iFold,]
     Xtest_i <- X[indexes == iFold,]
@@ -31,7 +31,7 @@ CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
     Ypred_i <- model(Xtrain_i, Ytrain_i, Xtest_i)
     
     perf_i <- error(Ytest_i, Ypred_i)
-    print(perf_i)
+#     print(perf_i)
     perf[[iFold]] <- perf_i
   }
   
