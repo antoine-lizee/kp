@@ -50,7 +50,7 @@ writeSubmission <- function(ids, Ypred, modelName){
 
 # Test --------------------------------------------------------------------
 
-if (test.b <- TRUE) {
+if (test.b <- FALSE ) {
   Y <- read.csv("Output/sample_submission.csv")
   Y.hat <- read.csv("Output/submission.csv")
   print( mcrmse(Y[,-1], Y.hat[,-1]) )

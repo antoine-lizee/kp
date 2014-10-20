@@ -42,7 +42,7 @@ fitModel <- function(subModel, Xt, Yt, preproc) {
     return(do.call(cbind,Y))
   }
   
-  MOD <- train(Xtrain, Ytrain)
+  MOD <- train(Xt, Yt)
 
   function(Xtest) {
     predict.mod(MOD, Xtest)
@@ -55,7 +55,7 @@ model <- function(Xtrain, Ytrain, Xtest) {
   preproc <- getPreproc(Xtrain, Ytrain, Xtest)
   
   subModel <- function(Xpp, Y) {
-    lm(Y~.,data.frame(Xpp, Y)
+    lm(Y~.,data.frame(Xpp, Y))
   }
   
   totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
