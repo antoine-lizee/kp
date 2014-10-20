@@ -1,10 +1,11 @@
 
-model <- function(Xtrain, Ytrain, Xtest) {
+getPreproc <- function(Xtrain, Ytrain, Xtest) {
   
   center.b <- TRUE
   
   wn.col <- grep(colnames(Xtrain), pattern = "m.*")
-  wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
+#   wn.train <- rbind(Xtrain[,wn.col], Xtest[,wn.col])
+  wn.train <- Xtrain[,wn.col]
   wn.pca <- prcomp(wn.train, center = center.b)
   
   pca.rot <- wn.pca$rotation
@@ -20,11 +21,15 @@ model <- function(Xtrain, Ytrain, Xtest) {
     }
   }
   
+  return(preproc)
+}
+
+fitModel <- function(subModel, Xt, Yt, preproc) {
   train <- function(Xt, Yt) {
     mod <- list()
     Xpp <- preproc(Xt)[,1:10]
     for (i in 1:ncol(Yt)) {
-      mod[[i]] <- lm(Y~.,data.frame(Xpp, Y=Yt[,i]))
+      mod[[i]] <- subModel(Xpp,Yt[,i])
     }
     return(mod)
   }
@@ -38,7 +43,24 @@ model <- function(Xtrain, Ytrain, Xtest) {
   }
   
   MOD <- train(Xtrain, Ytrain)
-  return(predict.mod(MOD, Xtest))
+
+  function(Xtest) {
+    predict.mod(MOD, Xtest)
+  }
+}
+
+
+model <- function(Xtrain, Ytrain, Xtest) {
+  
+  preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+  
+  subModel <- function(Xpp, Y) {
+    lm(Y~.,data.frame(Xpp, Y)
+  }
+  
+  totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+  
+  return(totalPred(Xtest))
   
 }
 
