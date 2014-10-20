@@ -29,15 +29,13 @@ PERF <- list()
 # PERF<- c(PERF, list(CV(getModelSVM(kernel = "sigmoid", cost = 1000),Xtot,Ytot, nFold = 10)))
 
 nFolds <- 4
-PERF<- c(PERF, list(CV(getModelRF(PCA = FALSE, ntree = 300, mtry = 10),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = FALSE, ntree = 300, mtry = 15),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = FALSE, ntree = 300, mtry = 20),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 20, ntree = 300, mtry = 10),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 20, ntree = 300, mtry = 12),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 20, ntree = 300, mtry = 14),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 12),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 14),Xtot,Ytot, nFolds)))
-PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 16),Xtot,Ytot, nFolds)))
+
+PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 12),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 14),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelRF(PCA = 40, ntree = 300, mtry = 16),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelRF(PCA = 60, ntree = 300, mtry = 12),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelRF(PCA = 60, ntree = 300, mtry = 14),Xtot,Ytot, nFold = nFolds)))
+PERF<- c(PERF, list(CV(getModelRF(PCA = 60, ntree = 300, mtry = 16),Xtot,Ytot, nFold = nFolds)))
 
 print(sapply(PERF, apply, 1, mean))
 #writeSubmission(testdata$PIDN, model(Xtot, Ytot, testdata), "LM")

@@ -20,7 +20,7 @@ getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
     if (PCA == TRUE) {
       nPCA <- 20 
     } else {
-      stopifnot(is.integer(PCA))
+      stopifnot(is.numeric(PCA))
       nPCA <- PCA
     }
     
