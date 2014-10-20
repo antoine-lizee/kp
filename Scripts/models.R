@@ -116,6 +116,21 @@ getModelLinear <- function(step.b = FALSE) {
   
 }
 
+getModelGBM <- function(...) {
+  library(gbm)
+  subModel <- function(Xpp, Y) {
+    gbm(Y~., distribution = "gaussian", data = data.frame(Xpp, Y), ...)
+  }
+  
+  function(Xtrain, Ytrain, Xtest) {
+    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    return(totalPred(Xtest))
+  }
+  
+}
+
+
 model_zero <- function(Xtrain, Ytrain, Xtest) {
   tmp <- matrix(0, nrow = dim(Xtest)[1], ncol = 5)
   Ypred <- as.data.frame(tmp)
