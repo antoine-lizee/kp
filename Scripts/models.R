@@ -23,7 +23,7 @@ getPreproc <- function(Xtrain, PCA = TRUE) {
       nPCA <- PCA
     }
     
-    center.b <- FALSE
+    center.b <- TRUE
     
     wn.col <- grep(colnames(Xtrain), pattern = "m.*")
 #i.remove <- which(colnames(Xtrain) == "m2379.76")

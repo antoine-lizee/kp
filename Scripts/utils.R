@@ -50,7 +50,9 @@ CVMultiple <- function(models, X, Y, error = mcrmse, nFold = 3, ...) {
   Xpp <- preproc(X)
   indexes <- sample(nFold, size = N, replace = T)
   
-  perf <- array(dim = c(ncol(Y)+1, length(models)+1, nFold))
+  nModels <- length(models)
+  
+  perf <- array(dim = c(ncol(Y)+1, nModels+1, nFold))
   
   for (iFold in 1:nFold) {
     Xtrain_i <- Xpp[indexes != iFold,]
@@ -58,22 +60,24 @@ CVMultiple <- function(models, X, Y, error = mcrmse, nFold = 3, ...) {
     Xtest_i <- Xpp[indexes == iFold,]
     Ytest_i <- Y[indexes == iFold,]
     
-    Ytot_i <- array(dim = c(nrow(Xpp), ncol(Y), length(models)))
+    Ytot_i <- array(dim = c(nrow(Xpp), ncol(Y), nModels))
     
     ##Fit individual models
-    for (iModel in 1:length(models)) {
-      Ytot_ii <- models[[iModel]](Xtrain_i, Ytrain_i, rbind(Xtrain_i,Xtest_i))
+    for (iModel in 1:nModels) {
+      Ytot_ii <- models[[iModel]](Xtrain_i, Ytrain_i, Xpp)
       Ytot_i[,,iModel] <- Ytot_ii
       Ypred_i <- Ytot_ii[indexes == iFold,]
       perf[,iModel, iFold] <- error(Ytest_i, Ypred_i)
     }
     
     ##Fit ensemble model
+    Ytot_i <- array(Ytot_i, dim = c(nrow(Xpp), ncol(Y) * length(models)))
     Ypred_em <- getModelRF(ntree = 100, mtry = 3)(Ytot_i[indexes != iFold,], Ytrain_i, Ytot_i[indexes == iFold,])
+    perf[,nModels+1, iFold] <- error(Ytest_i, Ypred_em)
   }
   
   PERF = list(mean_cv_err = apply(perf, c(1,2), mean),
-              std_cv_err = apply(perf, c(1,2), std))
+              std_cv_err = apply(perf, c(1,2), sd))
   
 }
 

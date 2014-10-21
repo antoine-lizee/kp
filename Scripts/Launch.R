@@ -71,11 +71,27 @@ PERF <- list()
 
 
 # Mutliple CV -------------------------------------------------------------
-
-PERF2 <- CVMultiple(list(getModelSVM(cost = 10000),
-                         getModelSVM(cost = 10),
-                         getModelRF(ntree = 200, mtry = 12)),
+nFolds <- 8
+PERF2 <- CVMultiple(list(getModelSVM(cost = 10000, tolerance = 0.0001),
+                         getModelSVM(cost = 1000, tolerance = 0.0001),
+                         getModelSVM(cost = 10, tolerance = 0.0001),
+                         getModelSVM(cost = 3, tolerance = 0.0001),
+                         getModelSVM(cost = 1, tolerance = 0.0001),
+                         getModelSVM(cost = 0.3, tolerance = 0.0001),
+                         getModelRF(ntree = 200, mtry = 10),
+                         getModelRF(ntree = 200, mtry = 12),
+                         getModelRF(ntree = 200, mtry = 14)),
                     Xtot,
                     Ytot,
-                    nFold = 3,
-                    PCA = 20)
+                    nFold = nFolds,
+                    PCA = 40)
+library(reshape2)
+library(ggplot2)
+matplot(t(PERF2$mean_cv_err), type = "l")
+data_mean_sd <- cbind(melt(PERF2$mean_cv_err, varnames = c("Feature", "Run"), value.name = "mean"), sd = melt(PERF2$std_cv_err)[,"value"])
+data_mean_sd$se <- data_mean_sd$sd / nFolds
+
+qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line", "errorbar")) +
+  theme_bw()
+qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line")) +
+  theme_bw()
