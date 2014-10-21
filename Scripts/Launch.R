@@ -72,7 +72,7 @@ PERF <- list()
 
 # Mutliple CV -------------------------------------------------------------
 nFolds <- 8
-PERF2 <- CVMultiple(list(getModelSVM(cost = 10000, tolerance = 0.0001),
+PERF3 <- CVMultiple(list(getModelSVM(cost = 10000, tolerance = 0.0001),
                          getModelSVM(cost = 1000, tolerance = 0.0001),
                          getModelSVM(cost = 10, tolerance = 0.0001),
                          getModelSVM(cost = 3, tolerance = 0.0001),
@@ -84,14 +84,23 @@ PERF2 <- CVMultiple(list(getModelSVM(cost = 10000, tolerance = 0.0001),
                     Xtot,
                     Ytot,
                     nFold = nFolds,
-                    PCA = 40)
+                    PCA = 80)
+
 library(reshape2)
 library(ggplot2)
-matplot(t(PERF2$mean_cv_err), type = "l")
-data_mean_sd <- cbind(melt(PERF2$mean_cv_err, varnames = c("Feature", "Run"), value.name = "mean"), sd = melt(PERF2$std_cv_err)[,"value"])
-data_mean_sd$se <- data_mean_sd$sd / nFolds
 
-qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line", "errorbar")) +
-  theme_bw()
-qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line")) +
-  theme_bw()
+plotModels <- function(PERF2, sd = FALSE) {
+  data_mean_sd <- cbind(melt(PERF2$mean_cv_err, varnames = c("Feature", "Run"), value.name = "mean"), sd = melt(PERF2$std_cv_err)[,"value"])
+  data_mean_sd$se <- data_mean_sd$sd / nFolds
+  if (sd)  {
+    qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line", "errorbar")) +
+      theme_bw()
+  } else {
+    qplot(data = data_mean_sd, x = Run, y = mean, ymin = mean-se, ymax = mean+se, group = factor(Feature), color =  factor(Feature), geom = c("line")) +
+      theme_bw()
+  }
+}
+
+
+plotModels(PERF2)
+plotModels(PERF3)
