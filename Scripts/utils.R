@@ -14,19 +14,21 @@ mcrmse <- function(Y,Y.hat){
   return(error)
 }
 
-CV <- function(model, X, Y, error = mcrmse, nFold = 3) {
+CV <- function(model, X, Y, error = mcrmse, nFold = 3, ...) {
   
   cat("### Beginning CV...\n")
   N <- nrow(X)
+  preproc <- getPreproc(X, ...)
+  Xpp <- preproc(X)
   indexes <- sample(nFold, size = N, replace = T)
   
   perf <- list()
   
   for (iFold in 1:nFold) {
 #     cat("## Iteration", iFold, "\n")
-    Xtrain_i <- X[indexes != iFold,]
+    Xtrain_i <- Xpp[indexes != iFold,]
     Ytrain_i <- Y[indexes != iFold,]
-    Xtest_i <- X[indexes == iFold,]
+    Xtest_i <- Xpp[indexes == iFold,]
     Ytest_i <- Y[indexes == iFold,]
     Ypred_i <- model(Xtrain_i, Ytrain_i, Xtest_i)
     

@@ -1,16 +1,15 @@
 
 
-# subModel <- function(Xpp, Y) {
+#subModel <- function(Xpp, Y) {
 #   #lm(Y~.,data.frame(Xpp, Y))
 #   #step(lm(Y~.,data.frame(Xpp, Y)), trace = 0)
-#   #svm(Y~.,data.frame(Xpp, Y))
+#   svm(Y~.,data.frame(Xpp, Y))
 #   randomForest(Y~.,data.frame(Xpp, Y), ntree = 400, mtry = 8)
-# }
+#}
 
 
-getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
-  
-
+getPreproc <- function(Xtrain, PCA = TRUE) {
+  # returns the preprocessing function
   if (PCA == FALSE) {
     preproc <- function(X) {
       X
@@ -54,10 +53,11 @@ getPreproc <- function(Xtrain, Ytrain, Xtest, PCA = TRUE) {
   return(preproc)
 }
 
-fitModel <- function(subModel, Xt, Yt, preproc) {
+fitModel <- function(subModel, Xt, Yt) {
   train <- function(Xt, Yt) {
     mod <- list()
-    Xpp <- preproc(Xt)
+    #Xpp <- preproc(Xt)
+    Xpp <- Xt
     for (i in 1:ncol(Yt)) {
       mod[[i]] <- subModel(Xpp,Yt[,i])
     }
@@ -67,7 +67,7 @@ fitModel <- function(subModel, Xt, Yt, preproc) {
   predict.mod <- function(mod, Xh) {
     Y <- list()
     for (i in 1:length(mod)) {
-      Y[[i]] <- predict(mod[[i]], data.frame(preproc(Xh)))
+      Y[[i]] <- predict(mod[[i]], data.frame(Xh))
     }
     return(do.call(cbind,Y))
   }
@@ -80,8 +80,8 @@ fitModel <- function(subModel, Xt, Yt, preproc) {
 }
 
 model <- function(Xtrain, Ytrain, Xtest) {
-  preproc <- getPreproc(Xtrain, Ytrain, Xtest)
-  totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+  #preproc <- getPreproc(Xtrain)
+  totalPred <- fitModel(subModel, Xtrain, Ytrain)
   return(totalPred(Xtest))
 }
 
@@ -92,8 +92,7 @@ getModelRF <- function(PCA = TRUE, ...) {
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
-    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain)
     return(totalPred(Xtest))
   }
   
@@ -106,8 +105,7 @@ getModelSVM <- function(PCA = TRUE, ...) {
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
-    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain)
     return(totalPred(Xtest))
   }
   
@@ -123,8 +121,7 @@ getModelLinear <- function(PCA = TRUE, step.b = FALSE) {
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest, PCA)
-    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain)
     return(totalPred(Xtest))
   }
   
@@ -137,8 +134,7 @@ getModelGBM <- function(...) {
   }
   
   function(Xtrain, Ytrain, Xtest) {
-    preproc <- getPreproc(Xtrain, Ytrain, Xtest)
-    totalPred <- fitModel(subModel, Xtrain, Ytrain, preproc)
+    totalPred <- fitModel(subModel, Xtrain, Ytrain)
     return(totalPred(Xtest))
   }
   
